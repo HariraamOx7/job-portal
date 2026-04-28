@@ -8,9 +8,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 
-enum Role{
-    JOB_RECRUITER,JOB_SEEKER
-}
 
 @Entity
 @Getter
@@ -41,7 +38,7 @@ public class User {
     
 
     @Enumerated(EnumType.STRING)
-    public Role role;
+    private Role role;
 
     private LocalDateTime createdAt;
 
