@@ -1,5 +1,7 @@
 package com.hariraam.jobportal.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
-public interface UserRepository extends JpaRepository{
+
+import com.hariraam.jobportal.model.User;
+public interface UserRepository extends JpaRepository<User,Long>{
     
 }
