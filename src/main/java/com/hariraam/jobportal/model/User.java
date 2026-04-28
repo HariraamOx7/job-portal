@@ -35,13 +35,7 @@ public class User {
     @NotBlank
     private String password;
 
-    
-
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 
 }
