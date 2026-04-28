@@ -4,9 +4,13 @@ import java.time.LocalDate;
 import jakarta.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.*;
 
 
 @Entity
+@Setter
+@Getter
+@NoArgsConstructor
 public class JobSeeker {
 
     @Id

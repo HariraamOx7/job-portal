@@ -3,6 +3,12 @@ package com.hariraam.jobportal.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
+import lombok.*;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class JobRecruiter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
