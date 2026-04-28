@@ -1,7 +1,7 @@
 package com.hariraam.jobportal.model;
 
 import java.time.LocalDate;
-import jakarta.annotation.*;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -44,7 +44,7 @@ public class JobSeeker {
 
 
     private String gender;
-    @NotBlank(message = "Age cant be Blank")
+    @NotNull(message = "Age cant be Blank")
     private LocalDate dateOfBirth;
 
     @Pattern(regexp="^[0-9]{10}$",message = "Phone number must be exactly 10 digits with value(0-9)")

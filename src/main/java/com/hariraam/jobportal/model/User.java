@@ -5,10 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import jakarta.annotation.*;
+
 enum Role{
     JOB_RECRUITER,JOB_SEEKER
 }
@@ -41,8 +40,8 @@ public class User {
 
     
 
-
-    private Role role;
+    @Enumerated(EnumType.STRING)
+    public Role role;
 
     private LocalDateTime createdAt;
 
