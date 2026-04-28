@@ -1,10 +1,24 @@
-HELP.md
+### Build Tool Artifacts ###
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+build/
+out/
+bin/
 
-### STS ###
+# We usually WANT to commit the Maven Wrapper so the project is portable
+# !.mvn/wrapper/maven-wrapper.jar 
+
+### Operating System Files ###
+.DS_Store
+desktop.ini
+Thumbs.db
+
+### Logs & Temp ###
+*.log
+logs/
+*.tmp
+*.swp
+
+### STS / Eclipse ###
 .apt_generated
 .classpath
 .factorypath
@@ -14,10 +28,13 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
+# If you use the task/context feature
+.idea/shelf/
+.idea/workspace.xml
 
 ### NetBeans ###
 /nbproject/private/
@@ -25,9 +42,13 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+.history/
+*.code-workspace
+
+### Spring Boot Specific ###
+HELP.md
+# Only ignore this if you use it for local secrets
+application-local.properties
