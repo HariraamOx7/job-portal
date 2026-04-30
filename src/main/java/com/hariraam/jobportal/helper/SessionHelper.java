@@ -28,12 +28,29 @@ public class SessionHelper {
     public JobRecruiter getCurrentRecruiter(HttpSession session) {
         User user = getCurrentUser(session);
         if (user == null) return null;
-        return recruiterRepo.findByUser(user).orElse(null);
+        return recruiterRepo.findByUser(user).orElseGet(() -> {
+            JobRecruiter r = new JobRecruiter();
+            r.setUser(user);
+            r.setCompanyName(user.getName());
+            r.setCompanyWebsite("");
+            r.setCompanyEmail(user.getEmail());
+            r.setIndustry("");
+            r.setDesignation("");
+            return recruiterRepo.save(r);
+        });
     }
 
     public JobSeeker getCurrentSeeker(HttpSession session) {
         User user = getCurrentUser(session);
         if (user == null) return null;
-        return seekerRepo.findByUser(user).orElse(null);
+        return seekerRepo.findByUser(user).orElseGet(() -> {
+            JobSeeker s = new JobSeeker();
+            s.setUser(user);
+            s.setLinkedinUrl("");
+            s.setGithubUrl("");
+            s.setPortfolioUrl("");
+            // dateOfBirth left null; user should complete their profile
+            return seekerRepo.save(s);
+        });
     }
 }
