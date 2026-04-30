@@ -37,7 +37,7 @@ public class AuthController {
             model.addAttribute("error", "Invalid Email or Password");
             return "login";
         }
-        session.setAttribute("userId", (Long) user.getUser_id());
+        session.setAttribute("userId", user.getUser_id());
         if (user.getRole() == Role.JOB_SEEKER) {
             return "redirect:/JobPortal/seeker/home";
         } else if (user.getRole() == Role.JOB_RECRUITER) {
