@@ -18,6 +18,10 @@ import com.hariraam.jobportal.model.*;
 public class AuthController {
     @Autowired
     private  UserService userService;
+    @GetMapping("/")
+    public String rootRedirect() {
+        return "redirect:/JobPortal/login";
+    }
     @GetMapping("/login")
     public String loginPage(){
         return "login";
