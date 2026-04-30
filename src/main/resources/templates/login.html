@@ -35,7 +35,6 @@
             padding: 2rem;
         }
 
-        /* Subtle background pattern */
         body::before {
             content: '';
             position: fixed;
@@ -65,7 +64,7 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── Left panel ── */
+        
         .panel {
             width: 42%;
             background: linear-gradient(155deg, var(--green-deep) 0%, var(--green-mid) 55%, var(--green-accent) 100%);
@@ -146,7 +145,7 @@
             width: 22px; border-radius: 4px; background: #fff;
         }
 
-        /* ── Form side ── */
+       
         .form-side {
             flex: 1;
             background: var(--card);
@@ -249,7 +248,7 @@
 
 <div class="wrapper">
 
-    <!-- Left decorative panel -->
+  
     <div class="panel">
         <div>
             <p class="brand-eyebrow">Welcome to</p>
@@ -271,18 +270,14 @@
         </div>
     </div>
 
-    <!-- Form side -->
+  
     <div class="form-side">
         <h2 class="form-heading">Welcome back</h2>
         <p class="form-sub">Enter your credentials to continue</p>
 
-        <!-- Error message from controller: model.addAttribute("error", "...") -->
+      
         <div class="alert-error" th:if="${error}" th:text="${error}"></div>
 
-        <!--
-            POST /JobPortal/login
-            Params: email, password  (@RequestParam)
-        -->
         <form th:action="@{/JobPortal/login}" method="post">
 
             <div class="field">
