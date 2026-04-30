@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Post Job – JobPortal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --green-deep: #04342C; --green-mid: #0F6E56; --green-accent: #1D9E75;
+            --green-light: #9FE1CB; --surface: #F7F6F3; --card: #FFFFFF;
+            --text-primary: #1A1A18; --text-muted: #6B6B67; --border: rgba(0,0,0,0.10); --radius: 10px;
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text-primary); }
+        .navbar { position: sticky; top: 0; z-index: 100; background: var(--green-deep); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 58px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .brand { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #fff; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+        .nav-links a:hover { color: #fff; }
+        .nav-logout { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 6px; }
+        .nav-logout:hover { background: rgba(255,255,255,0.22) !important; }
+        .container { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--green-deep); margin-bottom: 1.8rem; }
+        .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 2rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+        input, select, textarea { padding: 10px 14px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: #fff; color: var(--text-primary); transition: border-color 0.15s; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--green-accent); }
+        textarea { resize: vertical; min-height: 110px; }
+        .btn { display: inline-block; padding: 11px 28px; border-radius: 7px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; transition: background 0.15s; }
+        .btn-primary { background: var(--green-accent); color: #fff; }
+        .btn-primary:hover { background: var(--green-mid); }
+        .form-actions { margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="brand" th:href="@{/JobPortal/recruiter/home}">JobPortal</a>
+    <div class="nav-links">
+        <a th:href="@{/JobPortal/recruiter/home}">Dashboard</a>
+        <a th:href="@{/JobPortal/recruiter/post-job}">Post Job</a>
+        <a th:href="@{/JobPortal/recruiter/manage-jobs}">Manage Jobs</a>
+        <a th:href="@{/JobPortal/login}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+<div class="container">
+    <h1 class="page-title">Post a New Job</h1>
+    <div class="card">
+        <form th:action="@{/JobPortal/recruiter/post-job}" th:object="${job}" method="post">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Job Title</label>
+                    <input type="text" th:field="*{title}" placeholder="e.g. Senior Software Engineer" required/>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" th:field="*{location}" placeholder="e.g. Bangalore, India" required/>
+                </div>
+                <div class="form-group">
+                    <label>Job Type</label>
+                    <select th:field="*{jobType}" required>
+                        <option value="">Select type</option>
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Remote">Remote</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>Salary Range</label>
+                    <input type="text" th:field="*{salaryRange}" placeholder="e.g. Rs.10L - Rs.18L per year"/>
+                </div>
+                <div class="form-group full">
+                    <label>Job Description</label>
+                    <textarea th:field="*{description}" placeholder="Describe the role, responsibilities..."></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Requirements</label>
+                    <textarea th:field="*{requirements}" placeholder="Skills, qualifications required..."></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Post Job</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

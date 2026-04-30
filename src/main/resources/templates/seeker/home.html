@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Browse Jobs – JobPortal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --green-deep: #04342C; --green-mid: #0F6E56; --green-accent: #1D9E75;
+            --green-light: #9FE1CB; --surface: #F7F6F3; --card: #FFFFFF;
+            --text-primary: #1A1A18; --text-muted: #6B6B67; --border: rgba(0,0,0,0.10); --radius: 10px;
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text-primary); }
+        .navbar { position: sticky; top: 0; z-index: 100; background: var(--green-deep); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 58px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .brand { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #fff; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+        .nav-links a:hover { color: #fff; }
+        .nav-logout { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 6px; }
+        .nav-logout:hover { background: rgba(255,255,255,0.22) !important; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+        .hero { margin-bottom: 2rem; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); }
+        .hero p { color: var(--text-muted); margin-top: 0.4rem; }
+        .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.4rem; }
+        .job-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 1.5rem; transition: box-shadow 0.15s, transform 0.15s; display: flex; flex-direction: column; }
+        .job-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.10); transform: translateY(-2px); }
+        .job-card-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--green-deep); margin-bottom: 0.3rem; }
+        .job-card-company { font-size: 13px; color: var(--text-muted); margin-bottom: 0.8rem; }
+        .job-meta { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .tag { display: inline-block; background: #e8f5f0; color: var(--green-mid); border-radius: 5px; padding: 2px 10px; font-size: 12px; }
+        .job-card-footer { margin-top: auto; }
+        .btn-view { display: inline-block; padding: 8px 20px; background: var(--green-accent); color: #fff; border-radius: 7px; text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.15s; }
+        .btn-view:hover { background: var(--green-mid); }
+        .empty-state { text-align: center; padding: 4rem; color: var(--text-muted); }
+        .salary { font-size: 13px; color: var(--text-muted); margin-bottom: 0.8rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="brand" th:href="@{/JobPortal/seeker/home}">JobPortal</a>
+    <div class="nav-links">
+        <a th:href="@{/JobPortal/seeker/home}">Browse Jobs</a>
+        <a th:href="@{/JobPortal/seeker/job-history}">My Applications</a>
+        <a th:href="@{/JobPortal/login}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+<div class="container">
+    <div class="hero">
+        <h1>Welcome, <span th:text="${seeker.user.name}">Seeker</span>!</h1>
+        <p>Discover your next opportunity</p>
+    </div>
+    <div class="jobs-grid" th:if="${!jobs.isEmpty()}">
+        <div class="job-card" th:each="job : ${jobs}">
+            <div class="job-card-title" th:text="${job.title}">Job Title</div>
+            <div class="job-card-company" th:text="${job.company}">Company</div>
+            <div class="job-meta">
+                <span class="tag" th:text="${job.location}">Location</span>
+                <span class="tag" th:text="${job.jobType}">Type</span>
+            </div>
+            <div class="salary" th:if="${job.salaryRange != null and !job.salaryRange.isEmpty()}" th:text="${job.salaryRange}">Salary</div>
+            <div class="job-card-footer">
+                <a th:href="@{/JobPortal/seeker/job/{id}(id=${job.id})}" class="btn-view">View Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="empty-state" th:if="${jobs.isEmpty()}">
+        <p>No open jobs available right now. Check back soon!</p>
+    </div>
+</div>
+</body>
+</html>
