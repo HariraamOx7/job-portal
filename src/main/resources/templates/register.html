@@ -63,7 +63,6 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── Left panel ── */
         .panel {
             width: 38%;
             background: linear-gradient(155deg, var(--green-deep) 0%, var(--green-mid) 55%, var(--green-accent) 100%);
@@ -106,7 +105,6 @@
         .panel-dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.25); display: inline-block; }
         .panel-dots span.active { width: 22px; border-radius: 4px; background: #fff; }
 
-        /* ── Form side ── */
         .form-side {
             flex: 1;
             background: var(--card);
@@ -174,7 +172,6 @@
             box-shadow: 0 0 0 3px rgba(29,158,117,0.13);
             background: #fff;
         }
-        /* Custom select arrow */
         .field .select-wrap { position: relative; }
         .field .select-wrap::after {
             content: '';
@@ -236,7 +233,6 @@
 
 <div class="wrapper">
 
-    <!-- Left decorative panel -->
     <div class="panel">
         <div>
             <p class="brand-eyebrow">Join</p>
@@ -258,23 +254,15 @@
         </div>
     </div>
 
-    <!-- Form side -->
+    
     <div class="form-side">
         <h2 class="form-heading">Create account</h2>
         <p class="form-sub">Join as a job seeker or recruiter</p>
 
-        <!-- Error message from controller: model.addAttribute("error", "User may already exist!") -->
+      
         <div class="alert-error" th:if="${error}" th:text="${error}"></div>
 
-        <!--
-            POST /JobPortal/register
-            Binds to @ModelAttribute User:
-              - userName  (@Pattern ^[a-zA-Z0-9]{5,15}$)
-              - name
-              - email     (@Email, @Column unique)
-              - password
-              - role      (@Enumerated STRING → JOB_SEEKER | JOB_RECRUITER)
-        -->
+        
         <form th:action="@{/JobPortal/register}" method="post" th:object="${user}">
 
             <div class="field-row">
