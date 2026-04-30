@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${job.title + ' – JobPortal'}">Job Detail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --green-deep: #04342C; --green-mid: #0F6E56; --green-accent: #1D9E75;
+            --green-light: #9FE1CB; --surface: #F7F6F3; --card: #FFFFFF;
+            --text-primary: #1A1A18; --text-muted: #6B6B67; --border: rgba(0,0,0,0.10); --radius: 10px;
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text-primary); }
+        .navbar { position: sticky; top: 0; z-index: 100; background: var(--green-deep); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 58px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .brand { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #fff; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+        .nav-links a:hover { color: #fff; }
+        .nav-logout { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 6px; }
+        .nav-logout:hover { background: rgba(255,255,255,0.22) !important; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+        .back-link { color: var(--green-accent); text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 1.2rem; }
+        .back-link:hover { text-decoration: underline; }
+        .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 2rem; }
+        .job-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--green-deep); margin-bottom: 0.4rem; }
+        .company { font-size: 15px; color: var(--text-muted); margin-bottom: 1rem; }
+        .meta-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .tag { display: inline-block; background: #e8f5f0; color: var(--green-mid); border-radius: 5px; padding: 4px 12px; font-size: 13px; }
+        .salary-tag { background: #fef9c3; color: #854d0e; }
+        .section { margin-bottom: 1.5rem; }
+        .section h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--green-deep); margin-bottom: 0.6rem; }
+        .section p { font-size: 14px; line-height: 1.7; color: var(--text-primary); white-space: pre-line; }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+        .apply-section { margin-top: 2rem; }
+        .btn-apply { display: inline-block; padding: 12px 32px; background: var(--green-accent); color: #fff; border-radius: 8px; font-size: 15px; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s; }
+        .btn-apply:hover { background: var(--green-mid); }
+        .badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+        .badge-applied { background: #e0f2fe; color: #0369a1; }
+        .badge-accepted { background: #d1fae5; color: #065f46; }
+        .badge-rejected { background: #fee2e2; color: #991b1b; }
+        .applied-info { display: flex; align-items: center; gap: 1rem; }
+        .applied-text { font-size: 14px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="brand" th:href="@{/JobPortal/seeker/home}">JobPortal</a>
+    <div class="nav-links">
+        <a th:href="@{/JobPortal/seeker/home}">Browse Jobs</a>
+        <a th:href="@{/JobPortal/seeker/job-history}">My Applications</a>
+        <a th:href="@{/JobPortal/login}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+<div class="container">
+    <a th:href="@{/JobPortal/seeker/home}" class="back-link">← Back to Jobs</a>
+    <div class="card">
+        <h1 class="job-title" th:text="${job.title}">Job Title</h1>
+        <div class="company" th:text="${job.company}">Company</div>
+        <div class="meta-row">
+            <span class="tag" th:text="${job.location}">Location</span>
+            <span class="tag" th:text="${job.jobType}">Type</span>
+            <span class="tag salary-tag" th:if="${job.salaryRange != null and !job.salaryRange.isEmpty()}" th:text="${job.salaryRange}">Salary</span>
+        </div>
+        <hr class="divider"/>
+        <div class="section" th:if="${job.description != null and !job.description.isEmpty()}">
+            <h3>About the Role</h3>
+            <p th:text="${job.description}">Description</p>
+        </div>
+        <div class="section" th:if="${job.requirements != null and !job.requirements.isEmpty()}">
+            <h3>Requirements</h3>
+            <p th:text="${job.requirements}">Requirements</p>
+        </div>
+        <hr class="divider"/>
+        <div class="apply-section">
+            <div th:if="${!hasApplied}">
+                <form th:action="@{/JobPortal/seeker/job/{id}/apply(id=${job.id})}" method="post">
+                    <button type="submit" class="btn-apply">Apply Now</button>
+                </form>
+            </div>
+            <div th:if="${hasApplied}" class="applied-info">
+                <span class="applied-text">You applied for this job.</span>
+                <span class="badge badge-applied" th:if="${appStatus != null and appStatus.name() == 'APPLIED'}">Applied</span>
+                <span class="badge badge-accepted" th:if="${appStatus != null and appStatus.name() == 'ACCEPTED'}">Accepted</span>
+                <span class="badge badge-rejected" th:if="${appStatus != null and appStatus.name() == 'REJECTED'}">Rejected</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

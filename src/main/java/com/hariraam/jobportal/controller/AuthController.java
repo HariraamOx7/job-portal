@@ -1,4 +1,5 @@
 package com.hariraam.jobportal.controller;
+
 import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,48 +11,53 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.hariraam.jobportal.service.UserService;
 import com.hariraam.jobportal.model.*;
-
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/JobPortal")
-
 public class AuthController {
     @Autowired
-    private  UserService userService;
+    private UserService userService;
+
     @GetMapping("/")
     public String rootRedirect() {
         return "redirect:/JobPortal/login";
     }
+
     @GetMapping("/login")
-    public String loginPage(){
+    public String loginPage() {
         return "login";
     }
+
     @PostMapping("/login")
-    public String loginPage(@RequestParam String email,@RequestParam String password,Model model){
-        User user=userService.login(email, password);
-        if(user==null){
-             model.addAttribute("error","Invalid Email or Password ");
-               return "login";
+    public String loginPage(@RequestParam String email, @RequestParam String password,
+                             Model model, HttpSession session) {
+        User user = userService.login(email, password);
+        if (user == null) {
+            model.addAttribute("error", "Invalid Email or Password");
+            return "login";
         }
-        if(user.getRole()==Role.JOB_SEEKER){
+        session.setAttribute("userId", user.getUser_id());
+        if (user.getRole() == Role.JOB_SEEKER) {
             return "redirect:/JobPortal/seeker/home";
-        }
-        else if(user.getRole()==Role.JOB_RECRUITER){
+        } else if (user.getRole() == Role.JOB_RECRUITER) {
             return "redirect:/JobPortal/recruiter/home";
         }
-        model.addAttribute("error", "user Role not recognized");
+        model.addAttribute("error", "User role not recognized");
         return "login";
     }
+
     @GetMapping("/register")
-    public String registerPage(){
+    public String registerPage() {
         return "register";
     }
+
     @PostMapping("/register")
-    public String register(@ModelAttribute User user,Model model){
-        if(userService.saveUser(user)){
+    public String register(@ModelAttribute User user, Model model) {
+        if (userService.saveUser(user)) {
             return "redirect:/JobPortal/login";
         }
-        model.addAttribute("error","User may already exist!");
+        model.addAttribute("error", "User may already exist!");
         return "register";
     }
 }
