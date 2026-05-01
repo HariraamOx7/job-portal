@@ -25,6 +25,14 @@ public class JobSeeker {
     private String headline;
     private String summary;
 
+    @Column(columnDefinition = "TEXT")
+    private String about;
+
+    @Column(columnDefinition = "TEXT")
+    private String skills;
+
+    private Integer yearsOfExperience;
+
     private String degree;
     private String department;
     private String collegeName;

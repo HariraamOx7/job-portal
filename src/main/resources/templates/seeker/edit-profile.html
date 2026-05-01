@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit Profile – JobPortal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --green-deep: #04342C; --green-mid: #0F6E56; --green-accent: #1D9E75;
+            --green-light: #9FE1CB; --surface: #F7F6F3; --card: #FFFFFF;
+            --text-primary: #1A1A18; --text-muted: #6B6B67; --border: rgba(0,0,0,0.10); --radius: 10px;
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text-primary); }
+        .navbar { position: sticky; top: 0; z-index: 100; background: var(--green-deep); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 58px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .brand { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #fff; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+        .nav-links a:hover { color: #fff; }
+        .nav-logout { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 6px; }
+        .nav-logout:hover { background: rgba(255,255,255,0.22) !important; }
+        .container { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+        .back-link { color: var(--green-accent); text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 1.2rem; }
+        .back-link:hover { text-decoration: underline; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--green-deep); margin-bottom: 1.8rem; }
+        .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 2rem; margin-bottom: 1.5rem; }
+        .section-heading { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--green-deep); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+        input, select, textarea { padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: #fff; color: var(--text-primary); transition: border-color 0.15s; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--green-accent); }
+        textarea { resize: vertical; min-height: 90px; }
+        .btn { display: inline-block; padding: 10px 26px; border-radius: 7px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; transition: background 0.15s; }
+        .btn-primary { background: var(--green-accent); color: #fff; }
+        .btn-primary:hover { background: var(--green-mid); }
+        .btn-cancel { color: var(--text-muted); text-decoration: none; font-size: 14px; }
+        .form-actions { display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="brand" th:href="@{/JobPortal/seeker/home}">JobPortal</a>
+    <div class="nav-links">
+        <a th:href="@{/JobPortal/seeker/home}">Browse Jobs</a>
+        <a th:href="@{/JobPortal/seeker/job-history}">My Applications</a>
+        <a th:href="@{/JobPortal/seeker/profile}">My Profile</a>
+        <a th:href="@{/JobPortal/login}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+<div class="container">
+    <a th:href="@{/JobPortal/seeker/profile}" class="back-link">← Back to Profile</a>
+    <h1 class="page-title">Edit Profile</h1>
+
+    <form th:action="@{/JobPortal/seeker/profile/edit}" method="post">
+        <!-- Basic Info -->
+        <div class="card">
+            <div class="section-heading">Basic Information</div>
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Headline</label>
+                    <input type="text" name="headline" th:value="${seeker.headline}" placeholder="e.g. Full Stack Developer | Java Enthusiast"/>
+                </div>
+                <div class="form-group full">
+                    <label>About</label>
+                    <textarea name="about" th:text="${seeker.about}" placeholder="Write a short bio about yourself..."></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Skills <span style="color:var(--text-muted);font-weight:400;">(comma-separated, e.g. Java, Python, React)</span></label>
+                    <input type="text" name="skills" th:value="${seeker.skills}" placeholder="Java, Spring Boot, React, SQL"/>
+                </div>
+                <div class="form-group">
+                    <label>Years of Experience</label>
+                    <input type="number" name="yearsOfExperience" th:value="${seeker.yearsOfExperience}" min="0" max="50"/>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" name="phoneNumber" th:value="${seeker.phoneNumber}" placeholder="10-digit number"/>
+                </div>
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="city" th:value="${seeker.city}" placeholder="City"/>
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" name="state" th:value="${seeker.state}" placeholder="State"/>
+                </div>
+                <div class="form-group">
+                    <label>Country</label>
+                    <input type="text" name="country" th:value="${seeker.country}" placeholder="Country"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="card">
+            <div class="section-heading">Social Links</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>LinkedIn URL</label>
+                    <input type="url" name="linkedinUrl" th:value="${seeker.linkedinUrl}" placeholder="https://linkedin.com/in/..."/>
+                </div>
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" name="githubUrl" th:value="${seeker.githubUrl}" placeholder="https://github.com/..."/>
+                </div>
+                <div class="form-group full">
+                    <label>Portfolio URL</label>
+                    <input type="url" name="portfolioUrl" th:value="${seeker.portfolioUrl}" placeholder="https://yourportfolio.com"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="card">
+            <div class="section-heading">Education</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Degree</label>
+                    <input type="text" name="degree" th:value="${seeker.degree}" placeholder="e.g. B.Tech, B.Sc"/>
+                </div>
+                <div class="form-group">
+                    <label>Department / Field</label>
+                    <input type="text" name="department" th:value="${seeker.department}" placeholder="e.g. Computer Science"/>
+                </div>
+                <div class="form-group full">
+                    <label>College / University</label>
+                    <input type="text" name="collegeName" th:value="${seeker.collegeName}" placeholder="Institution name"/>
+                </div>
+                <div class="form-group">
+                    <label>CGPA / Percentage</label>
+                    <input type="number" name="cgpa" th:value="${seeker.cgpa}" step="0.01" min="0" max="10" placeholder="e.g. 8.5"/>
+                </div>
+                <div class="form-group">
+                    <label>Graduation Year</label>
+                    <input type="number" name="graduationYear" th:value="${seeker.graduationYear}" placeholder="e.g. 2024"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a th:href="@{/JobPortal/seeker/profile}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

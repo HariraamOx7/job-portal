@@ -20,21 +20,23 @@
         .nav-links a:hover { color: #fff; }
         .nav-logout { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 6px; }
         .nav-logout:hover { background: rgba(255,255,255,0.22) !important; }
-        .container { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+        .container { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem; }
         .page-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--green-deep); margin-bottom: 1.5rem; }
         .table-wrap { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th { background: var(--green-deep); color: #fff; padding: 12px 16px; font-size: 13px; font-weight: 500; text-align: left; }
-        td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #f0faf6; }
         .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
         .badge-applied { background: #e0f2fe; color: #0369a1; }
+        .badge-offered { background: #fef3c7; color: #92400e; }
         .badge-accepted { background: #d1fae5; color: #065f46; }
         .badge-rejected { background: #fee2e2; color: #991b1b; }
         .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
         .link-btn { color: var(--green-accent); text-decoration: none; font-size: 14px; }
         .link-btn:hover { text-decoration: underline; }
+        .rejection-reason { font-size: 12px; color: #991b1b; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -43,6 +45,7 @@
     <div class="nav-links">
         <a th:href="@{/JobPortal/seeker/home}">Browse Jobs</a>
         <a th:href="@{/JobPortal/seeker/job-history}">My Applications</a>
+        <a th:href="@{/JobPortal/seeker/profile}">My Profile</a>
         <a th:href="@{/JobPortal/login}" class="nav-logout">Logout</a>
     </div>
 </nav>
@@ -68,8 +71,12 @@
                     <td th:text="${#temporals.format(app.appliedAt, 'yyyy-MM-dd')}">Date</td>
                     <td>
                         <span class="badge badge-applied" th:if="${app.status.name() == 'APPLIED'}">Applied</span>
+                        <span class="badge badge-offered" th:if="${app.status.name() == 'OFFERED'}">Offered</span>
                         <span class="badge badge-accepted" th:if="${app.status.name() == 'ACCEPTED'}">Accepted</span>
                         <span class="badge badge-rejected" th:if="${app.status.name() == 'REJECTED'}">Rejected</span>
+                        <div class="rejection-reason"
+                             th:if="${app.status.name() == 'REJECTED' and app.rejectionReason != null and !app.rejectionReason.isEmpty()}"
+                             th:text="${'Reason: ' + app.rejectionReason}">reason</div>
                     </td>
                     <td>
                         <a th:href="@{/JobPortal/seeker/job/{id}(id=${app.job.id})}" class="link-btn">View Job</a>

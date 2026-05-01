@@ -32,16 +32,24 @@
         .section { margin-bottom: 1.5rem; }
         .section h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--green-deep); margin-bottom: 0.6rem; }
         .section p { font-size: 14px; line-height: 1.7; color: var(--text-primary); white-space: pre-line; }
+        .skills-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .skill-tag { background: #e0f2fe; color: #0369a1; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 500; }
         .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
         .apply-section { margin-top: 2rem; }
         .btn-apply { display: inline-block; padding: 12px 32px; background: var(--green-accent); color: #fff; border-radius: 8px; font-size: 15px; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s; }
         .btn-apply:hover { background: var(--green-mid); }
         .badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; }
         .badge-applied { background: #e0f2fe; color: #0369a1; }
+        .badge-offered { background: #fef3c7; color: #92400e; }
         .badge-accepted { background: #d1fae5; color: #065f46; }
         .badge-rejected { background: #fee2e2; color: #991b1b; }
-        .applied-info { display: flex; align-items: center; gap: 1rem; }
+        .applied-info { display: flex; flex-direction: column; gap: 0.8rem; }
         .applied-text { font-size: 14px; color: var(--text-muted); }
+        .rejection-box { background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem; margin-top: 0.5rem; }
+        .rejection-box p { font-size: 13px; color: #991b1b; }
+        .file-input-label { display: inline-block; font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+        input[type="file"] { font-size: 13px; }
+        .applicant-count-line { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; }
     </style>
 </head>
 <body>
@@ -50,6 +58,7 @@
     <div class="nav-links">
         <a th:href="@{/JobPortal/seeker/home}">Browse Jobs</a>
         <a th:href="@{/JobPortal/seeker/job-history}">My Applications</a>
+        <a th:href="@{/JobPortal/seeker/profile}">My Profile</a>
         <a th:href="@{/JobPortal/login}" class="nav-logout">Logout</a>
     </div>
 </nav>
@@ -61,9 +70,18 @@
         <div class="meta-row">
             <span class="tag" th:text="${job.location}">Location</span>
             <span class="tag" th:text="${job.jobType}">Type</span>
+            <span class="tag" th:if="${job.experienceRequired != null and !job.experienceRequired.isEmpty()}" th:text="${job.experienceRequired}">Exp</span>
             <span class="tag salary-tag" th:if="${job.salaryRange != null and !job.salaryRange.isEmpty()}" th:text="${job.salaryRange}">Salary</span>
         </div>
+        <div class="applicant-count-line" th:text="${applicantCount + ' applicant(s)'}">0 applicants</div>
         <hr class="divider"/>
+        <div class="section" th:if="${job.requiredSkills != null and !job.requiredSkills.isEmpty()}">
+            <h3>Required Skills</h3>
+            <div class="skills-list">
+                <span class="skill-tag" th:each="skill : ${#strings.arraySplit(job.requiredSkills, ',')}"
+                      th:text="${#strings.trim(skill)}">Skill</span>
+            </div>
+        </div>
         <div class="section" th:if="${job.description != null and !job.description.isEmpty()}">
             <h3>About the Role</h3>
             <p th:text="${job.description}">Description</p>
@@ -75,15 +93,25 @@
         <hr class="divider"/>
         <div class="apply-section">
             <div th:if="${!hasApplied}">
-                <form th:action="@{/JobPortal/seeker/job/{id}/apply(id=${job.id})}" method="post">
+                <form th:action="@{/JobPortal/seeker/job/{id}/apply(id=${job.id})}" method="post" enctype="multipart/form-data">
+                    <div style="margin-bottom:1rem;">
+                        <label class="file-input-label">Upload Resume (PDF/DOC, optional)</label><br/>
+                        <input type="file" name="resumeFile" accept=".pdf,.doc,.docx"/>
+                    </div>
                     <button type="submit" class="btn-apply">Apply Now</button>
                 </form>
             </div>
             <div th:if="${hasApplied}" class="applied-info">
-                <span class="applied-text">You applied for this job.</span>
-                <span class="badge badge-applied" th:if="${appStatus != null and appStatus.name() == 'APPLIED'}">Applied</span>
-                <span class="badge badge-accepted" th:if="${appStatus != null and appStatus.name() == 'ACCEPTED'}">Accepted</span>
-                <span class="badge badge-rejected" th:if="${appStatus != null and appStatus.name() == 'REJECTED'}">Rejected</span>
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <span class="applied-text">You applied for this job.</span>
+                    <span class="badge badge-applied" th:if="${appStatus != null and appStatus.name() == 'APPLIED'}">Applied</span>
+                    <span class="badge badge-offered" th:if="${appStatus != null and appStatus.name() == 'OFFERED'}">Offered</span>
+                    <span class="badge badge-accepted" th:if="${appStatus != null and appStatus.name() == 'ACCEPTED'}">Accepted</span>
+                    <span class="badge badge-rejected" th:if="${appStatus != null and appStatus.name() == 'REJECTED'}">Rejected</span>
+                </div>
+                <div class="rejection-box" th:if="${appStatus != null and appStatus.name() == 'REJECTED' and rejectionReason != null and !rejectionReason.isEmpty()}">
+                    <p><strong>Rejection reason:</strong> <span th:text="${rejectionReason}">reason</span></p>
+                </div>
             </div>
         </div>
     </div>
