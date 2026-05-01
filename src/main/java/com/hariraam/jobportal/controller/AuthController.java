@@ -19,7 +19,7 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/")
+    @GetMapping({"", "/"})
     public String rootRedirect() {
         return "redirect:/JobPortal/login";
     }
@@ -48,7 +48,8 @@ public class AuthController {
     }
 
     @GetMapping("/register")
-    public String registerPage() {
+    public String registerPage(Model model) {
+        model.addAttribute("user", new User());
         return "register";
     }
 

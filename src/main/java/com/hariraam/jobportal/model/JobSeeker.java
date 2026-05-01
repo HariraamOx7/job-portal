@@ -35,19 +35,19 @@ public class JobSeeker {
     private String state;
     private String country;
 
-    @NotEmpty
+
     private String linkedinUrl;
-    @NotEmpty
+
     private String githubUrl;
-    @NotEmpty
+
     private String portfolioUrl;
 
 
     private String gender;
-    @NotNull(message = "Age cant be Blank")
+
     private LocalDate dateOfBirth;
 
-    @Pattern(regexp="^[0-9]{10}$",message = "Phone number must be exactly 10 digits with value(0-9)")
+
     private String phoneNumber;
 
     private String resumePath;
