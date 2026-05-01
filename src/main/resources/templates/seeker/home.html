@@ -21,9 +21,18 @@
         .nav-logout { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 6px; }
         .nav-logout:hover { background: rgba(255,255,255,0.22) !important; }
         .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
-        .hero { margin-bottom: 2rem; }
+        .hero { margin-bottom: 1.5rem; }
         .hero h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); }
         .hero p { color: var(--text-muted); margin-top: 0.4rem; }
+        .filter-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.5rem; margin-bottom: 1.8rem; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.8rem; }
+        .filter-grid input, .filter-grid select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; background: #fff; color: var(--text-primary); outline: none; }
+        .filter-grid input:focus, .filter-grid select:focus { border-color: var(--green-accent); }
+        .filter-actions { display: flex; gap: 0.7rem; margin-top: 0.8rem; align-items: center; }
+        .btn-filter { padding: 8px 20px; background: var(--green-accent); color: #fff; border: none; border-radius: 7px; font-size: 13px; cursor: pointer; }
+        .btn-filter:hover { background: var(--green-mid); }
+        .btn-clear { padding: 8px 16px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); border-radius: 7px; font-size: 13px; text-decoration: none; }
+        .btn-clear:hover { background: #f0f0f0; }
         .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.4rem; }
         .job-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 1.5rem; transition: box-shadow 0.15s, transform 0.15s; display: flex; flex-direction: column; }
         .job-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.10); transform: translateY(-2px); }
@@ -31,11 +40,12 @@
         .job-card-company { font-size: 13px; color: var(--text-muted); margin-bottom: 0.8rem; }
         .job-meta { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 1rem; }
         .tag { display: inline-block; background: #e8f5f0; color: var(--green-mid); border-radius: 5px; padding: 2px 10px; font-size: 12px; }
-        .job-card-footer { margin-top: auto; }
+        .job-card-footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; }
         .btn-view { display: inline-block; padding: 8px 20px; background: var(--green-accent); color: #fff; border-radius: 7px; text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.15s; }
         .btn-view:hover { background: var(--green-mid); }
         .empty-state { text-align: center; padding: 4rem; color: var(--text-muted); }
         .salary { font-size: 13px; color: var(--text-muted); margin-bottom: 0.8rem; }
+        .applicant-count { font-size: 12px; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -44,6 +54,7 @@
     <div class="nav-links">
         <a th:href="@{/JobPortal/seeker/home}">Browse Jobs</a>
         <a th:href="@{/JobPortal/seeker/job-history}">My Applications</a>
+        <a th:href="@{/JobPortal/seeker/profile}">My Profile</a>
         <a th:href="@{/JobPortal/login}" class="nav-logout">Logout</a>
     </div>
 </nav>
@@ -52,6 +63,37 @@
         <h1>Welcome, <span th:text="${seeker.user.name}">Seeker</span>!</h1>
         <p>Discover your next opportunity</p>
     </div>
+
+    <!-- Search / Filter -->
+    <div class="filter-card">
+        <form th:action="@{/JobPortal/seeker/home}" method="get">
+            <div class="filter-grid">
+                <input type="text" name="title" placeholder="Job title" th:value="${title}"/>
+                <input type="text" name="company" placeholder="Company" th:value="${company}"/>
+                <input type="text" name="location" placeholder="Location" th:value="${location}"/>
+                <select name="jobType">
+                    <option value="">All Types</option>
+                    <option value="Full-time" th:selected="${jobType == 'Full-time'}">Full-time</option>
+                    <option value="Part-time" th:selected="${jobType == 'Part-time'}">Part-time</option>
+                    <option value="Contract" th:selected="${jobType == 'Contract'}">Contract</option>
+                    <option value="Remote" th:selected="${jobType == 'Remote'}">Remote</option>
+                </select>
+                <input type="text" name="skills" placeholder="Skills (e.g. Java)" th:value="${skills}"/>
+                <select name="experienceRequired">
+                    <option value="">Any Experience</option>
+                    <option value="0-1 years" th:selected="${experienceRequired == '0-1 years'}">0–1 years</option>
+                    <option value="1-3 years" th:selected="${experienceRequired == '1-3 years'}">1–3 years</option>
+                    <option value="3-5 years" th:selected="${experienceRequired == '3-5 years'}">3–5 years</option>
+                    <option value="5+ years" th:selected="${experienceRequired == '5+ years'}">5+ years</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">Search</button>
+                <a th:href="@{/JobPortal/seeker/home}" class="btn-clear">Clear</a>
+            </div>
+        </form>
+    </div>
+
     <div class="jobs-grid" th:if="${!jobs.isEmpty()}">
         <div class="job-card" th:each="job : ${jobs}">
             <div class="job-card-title" th:text="${job.title}">Job Title</div>
@@ -59,6 +101,7 @@
             <div class="job-meta">
                 <span class="tag" th:text="${job.location}">Location</span>
                 <span class="tag" th:text="${job.jobType}">Type</span>
+                <span class="tag" th:if="${job.experienceRequired != null and !job.experienceRequired.isEmpty()}" th:text="${job.experienceRequired}">Exp</span>
             </div>
             <div class="salary" th:if="${job.salaryRange != null and !job.salaryRange.isEmpty()}" th:text="${job.salaryRange}">Salary</div>
             <div class="job-card-footer">
@@ -67,7 +110,7 @@
         </div>
     </div>
     <div class="empty-state" th:if="${jobs.isEmpty()}">
-        <p>No open jobs available right now. Check back soon!</p>
+        <p>No jobs found matching your criteria. <a th:href="@{/JobPortal/seeker/home}" style="color:var(--green-accent);">Clear filters</a></p>
     </div>
 </div>
 </body>

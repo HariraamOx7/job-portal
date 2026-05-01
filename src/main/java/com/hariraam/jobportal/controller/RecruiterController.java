@@ -6,10 +6,16 @@ import com.hariraam.jobportal.service.JobApplicationService;
 import com.hariraam.jobportal.service.JobService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +94,15 @@ public class RecruiterController {
         return "recruiter/applicants";
     }
 
+    @PostMapping("/job/{applicationId}/offer")
+    public String offerApplicant(@PathVariable Long applicationId, HttpSession session,
+                                  @RequestParam Long jobId) {
+        JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
+        if (recruiter == null) return "redirect:/JobPortal/login";
+        appService.offerApplicant(applicationId);
+        return "redirect:/JobPortal/recruiter/job/" + jobId + "/applicants";
+    }
+
     @PostMapping("/job/{applicationId}/accept")
     public String acceptApplicant(@PathVariable Long applicationId, HttpSession session,
                                    @RequestParam Long jobId) {
@@ -99,11 +114,30 @@ public class RecruiterController {
 
     @PostMapping("/job/{applicationId}/reject")
     public String rejectApplicant(@PathVariable Long applicationId, HttpSession session,
-                                   @RequestParam Long jobId) {
+                                   @RequestParam Long jobId,
+                                   @RequestParam(required = false) String rejectionReason) {
         JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
         if (recruiter == null) return "redirect:/JobPortal/login";
-        appService.rejectApplicant(applicationId);
+        appService.rejectApplicant(applicationId, rejectionReason);
         return "redirect:/JobPortal/recruiter/job/" + jobId + "/applicants";
+    }
+
+    @GetMapping("/application/{applicationId}/resume")
+    public ResponseEntity<Resource> downloadResume(@PathVariable Long applicationId, HttpSession session) {
+        JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
+        if (recruiter == null) return ResponseEntity.status(403).build();
+        Optional<JobApplication> appOpt = appService.getApplicationById(applicationId);
+        if (appOpt.isEmpty()) return ResponseEntity.notFound().build();
+        JobApplication application = appOpt.get();
+        String path = application.getApplicationResumePath();
+        if (path == null || path.isBlank()) return ResponseEntity.notFound().build();
+        File file = new File(path);
+        if (!file.exists()) return ResponseEntity.notFound().build();
+        Resource resource = new FileSystemResource(file);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
     @GetMapping("/job/{id}/edit")
@@ -130,6 +164,8 @@ public class RecruiterController {
         existingJob.setSalaryRange(job.getSalaryRange());
         existingJob.setDescription(job.getDescription());
         existingJob.setRequirements(job.getRequirements());
+        existingJob.setRequiredSkills(job.getRequiredSkills());
+        existingJob.setExperienceRequired(job.getExperienceRequired());
         jobService.updateJob(existingJob);
         return "redirect:/JobPortal/recruiter/manage-jobs";
     }

@@ -25,6 +25,11 @@ public class JobApplication {
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status = ApplicationStatus.APPLIED;
 
+    private String applicationResumePath;
+
+    @Column(columnDefinition = "TEXT")
+    private String rejectionReason;
+
     @PrePersist
     public void prePersist() {
         if (appliedAt == null) appliedAt = LocalDateTime.now();

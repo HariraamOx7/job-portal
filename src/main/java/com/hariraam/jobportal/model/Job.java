@@ -27,6 +27,11 @@ public class Job {
     @Column(columnDefinition = "TEXT")
     private String requirements;
 
+    @Column(columnDefinition = "TEXT")
+    private String requiredSkills;
+
+    private String experienceRequired;
+
     private LocalDateTime postedAt;
 
     private String status = "OPEN";

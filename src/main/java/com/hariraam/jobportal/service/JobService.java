@@ -44,4 +44,15 @@ public class JobService {
     public void deleteJob(Long id) {
         jobRepo.deleteById(id);
     }
+
+    public List<Job> searchJobs(String title, String company, String location,
+                                 String jobType, String experienceRequired, String skills) {
+        String titleParam = (title != null && !title.isBlank()) ? title.trim() : null;
+        String companyParam = (company != null && !company.isBlank()) ? company.trim() : null;
+        String locationParam = (location != null && !location.isBlank()) ? location.trim() : null;
+        String jobTypeParam = (jobType != null && !jobType.isBlank()) ? jobType.trim() : null;
+        String expParam = (experienceRequired != null && !experienceRequired.isBlank()) ? experienceRequired.trim() : null;
+        String skillsParam = (skills != null && !skills.isBlank()) ? skills.trim() : null;
+        return jobRepo.searchJobs(titleParam, companyParam, locationParam, jobTypeParam, expParam, skillsParam);
+    }
 }
