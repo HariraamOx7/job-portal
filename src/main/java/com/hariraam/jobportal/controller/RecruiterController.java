@@ -46,7 +46,7 @@ public class RecruiterController {
         return "recruiter/home";
     }
 
-    // ----- Complete Profile -----
+
     @GetMapping("/complete-profile")
     public String completeProfileForm(HttpSession session, Model model) {
         JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
@@ -70,11 +70,10 @@ public class RecruiterController {
         recruiter.setAboutCompany(updatedRecruiter.getAboutCompany());
         recruiter.setDesignation(updatedRecruiter.getDesignation());
 
-        appService.saveRecruiter(recruiter); // you may need to add this method in service or use repository directly
+        appService.saveRecruiter(recruiter); 
         return "redirect:/JobPortal/recruiter/home";
     }
 
-    // ----- Post Job (with profile check) -----
     @GetMapping("/post-job")
     public String postJobForm(HttpSession session, Model model) {
         JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
@@ -101,7 +100,6 @@ public class RecruiterController {
         return "redirect:/JobPortal/recruiter/manage-jobs";
     }
 
-    // ----- Manage Jobs -----
     @GetMapping("/manage-jobs")
     public String manageJobs(HttpSession session, Model model) {
         JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
@@ -131,7 +129,7 @@ public class RecruiterController {
         return "recruiter/applicants";
     }
 
-    // ----- Offer / Accept / Reject (existing) -----
+  
     @PostMapping("/job/{applicationId}/offer")
     public String offerApplicant(@PathVariable Long applicationId, HttpSession session,
                                  @RequestParam Long jobId) {
@@ -160,7 +158,7 @@ public class RecruiterController {
         return "redirect:/JobPortal/recruiter/job/" + jobId + "/applicants";
     }
 
-    // ----- Download Resume -----
+    
     @GetMapping("/application/{applicationId}/resume")
     public ResponseEntity<Resource> downloadResume(@PathVariable Long applicationId, HttpSession session) {
         JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
@@ -195,7 +193,7 @@ public class RecruiterController {
             return "redirect:/JobPortal/recruiter/manage-jobs";
         }
 
-        // Add experiences and certifications
+        
         model.addAttribute("seeker", seeker);
         model.addAttribute("experiences", profileService.getExperiences(seeker));
         model.addAttribute("certifications", profileService.getCertifications(seeker));
@@ -204,7 +202,7 @@ public class RecruiterController {
         return "recruiter/view-applicant-profile";
     }
 
-    // ----- Edit & Close Job -----
+   
     @GetMapping("/job/{id}/edit")
     public String editJobForm(@PathVariable Long id, HttpSession session, Model model) {
         JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
@@ -251,9 +249,9 @@ public class RecruiterController {
         Optional<JobApplication> appOpt = appService.getApplicationById(applicationId);
         if (appOpt.isEmpty()) return "redirect:/JobPortal/recruiter/manage-jobs";
 
-        // Pass both the application object AND the ID separately
+      
         model.addAttribute("application", appOpt.get());
-        model.addAttribute("currentApplicationId", applicationId);   // ✅ add this line
+        model.addAttribute("currentApplicationId", applicationId);  
 
         return "recruiter/schedule-interview";
     }
@@ -262,7 +260,7 @@ public class RecruiterController {
         JobRecruiter recruiter = sessionHelper.getCurrentRecruiter(session);
         if (recruiter == null) return "redirect:/JobPortal/login";
 
-        // Optional: verify that the job belongs to this recruiter
+    
         Optional<Job> jobOpt = jobService.getJobById(id);
         if (jobOpt.isEmpty() || !jobOpt.get().getRecruiter().getJrId().equals(recruiter.getJrId())) {
             return "redirect:/JobPortal/recruiter/manage-jobs";
