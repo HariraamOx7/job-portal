@@ -27,6 +27,11 @@ public class SeekerProfileService {
         return expRepo.findBySeeker(seeker);
     }
 
+
+    public JobSeeker getSeekerById(Long seekerId) {
+        return seekerRepo.findById(seekerId).orElse(null);
+    }
+
     public void addExperience(JobSeeker seeker, String company, String title,
                                String startYear, String endYear, String description) {
         SeekerExperience exp = new SeekerExperience();

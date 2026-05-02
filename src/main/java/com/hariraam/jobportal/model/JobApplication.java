@@ -3,6 +3,7 @@ package com.hariraam.jobportal.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter @Setter @NoArgsConstructor
@@ -29,6 +30,11 @@ public class JobApplication {
 
     @Column(columnDefinition = "TEXT")
     private String rejectionReason;
+
+    // NEW FIELDS
+    private LocalDateTime interviewDate;
+    private LocalDate offerDate;
+    private Boolean offerAccepted;
 
     @PrePersist
     public void prePersist() {

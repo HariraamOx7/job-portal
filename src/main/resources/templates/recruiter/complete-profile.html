@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Complete Your Profile - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --green-deep: #04342C;
+            --green-mid: #0F6E56;
+            --green-accent: #1D9E75;
+            --surface: #F7F6F3;
+            --card: #FFFFFF;
+            --text-primary: #1A1A18;
+            --text-muted: #6B6B67;
+            --border: rgba(0,0,0,0.10);
+            --radius: 10px;
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--surface); padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: var(--card); border-radius: var(--radius); padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { font-family: 'Playfair Display', serif; color: var(--green-deep); margin-bottom: 1rem; }
+        .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin-bottom: 1.5rem; border-radius: var(--radius); }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; }
+        input:focus, textarea:focus { outline: none; border-color: var(--green-accent); }
+        .btn { padding: 12px 28px; background: var(--green-accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .btn:hover { background: var(--green-mid); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>Complete Your Company Profile</h1>
+        <div class="warning">
+            ⚠️ Please complete your company profile before posting jobs
+        </div>
+        <form th:action="@{/JobPortal/recruiter/complete-profile}" th:object="${recruiter}" method="post">
+            <div class="form-group">
+                <label>Company Name *</label>
+                <input type="text" th:field="*{companyName}" required/>
+            </div>
+            <div class="form-group">
+                <label>Company Website *</label>
+                <input type="url" th:field="*{companyWebsite}" required/>
+            </div>
+            <div class="form-group">
+                <label>Company Email *</label>
+                <input type="email" th:field="*{companyEmail}" required/>
+            </div>
+            <div class="form-group">
+                <label>Company Address</label>
+                <textarea th:field="*{companyAddress}" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Industry *</label>
+                <input type="text" th:field="*{industry}" required/>
+            </div>
+            <div class="form-group">
+                <label>Company Size</label>
+                <input type="number" th:field="*{companySize}" placeholder="Number of employees"/>
+            </div>
+            <div class="form-group">
+                <label>About Company</label>
+                <textarea th:field="*{aboutCompany}" rows="4" placeholder="Tell us about your company..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Your Designation *</label>
+                <input type="text" th:field="*{designation}" required/>
+            </div>
+            <button type="submit" class="btn">Save & Continue</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

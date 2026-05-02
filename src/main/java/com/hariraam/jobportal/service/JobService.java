@@ -36,14 +36,17 @@ public class JobService {
             jobRepo.save(job);
         });
     }
+    public void deleteJob(Long jobId) {
+        Job job = jobRepo.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        jobRepo.delete(job);
+    }
 
     public Job updateJob(Job job) {
         return jobRepo.save(job);
     }
 
-    public void deleteJob(Long id) {
-        jobRepo.deleteById(id);
-    }
+
 
     public List<Job> searchJobs(String title, String company, String location,
                                  String jobType, String experienceRequired, String skills) {

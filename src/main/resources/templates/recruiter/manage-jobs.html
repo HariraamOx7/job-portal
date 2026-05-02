@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
@@ -37,6 +38,8 @@
         .btn-sm { display: inline-block; padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 500; border: none; cursor: pointer; text-decoration: none; }
         .btn-edit { background: var(--green-light); color: var(--green-deep); }
         .btn-close-job { background: #fee2e2; color: #991b1b; }
+        .btn-delete { background: #dc2626; color: #fff; }
+        .btn-delete:hover { background: #b91c1c; }
         .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .btn { display: inline-block; padding: 9px 22px; border-radius: 7px; font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer; border: none; }
@@ -62,37 +65,53 @@
     <div class="table-wrap" th:if="${!jobs.isEmpty()}">
         <table>
             <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Location</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Posted</th>
-                    <th>Applicants</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Posted</th>
+                <th>Applicants</th>
+                <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
-                <tr th:each="job : ${jobs}">
-                    <td th:text="${job.title}">Title</td>
-                    <td th:text="${job.location}">Location</td>
-                    <td th:text="${job.jobType}">Type</td>
-                    <td>
-                        <span class="badge badge-open" th:if="${job.status == 'OPEN'}">Open</span>
-                        <span class="badge badge-closed" th:unless="${job.status == 'OPEN'}">Closed</span>
-                    </td>
-                    <td th:text="${#temporals.format(job.postedAt, 'yyyy-MM-dd')}">Date</td>
-                    <td th:text="${applicantCounts[job.id]}">0</td>
-                    <td>
-                        <div class="actions">
-                            <a th:href="@{/JobPortal/recruiter/job/{id}/applicants(id=${job.id})}" class="link-btn">Applicants</a>
-                            <a th:href="@{/JobPortal/recruiter/job/{id}/edit(id=${job.id})}" class="btn-sm btn-edit">Edit</a>
-                            <form th:if="${job.status == 'OPEN'}" th:action="@{/JobPortal/recruiter/job/{id}/close(id=${job.id})}" method="post" style="display:inline;">
-                                <button type="submit" class="btn-sm btn-close-job">Close</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
+            <tr th:each="job : ${jobs}">
+                <td th:text="${job.title}">Title</td>
+                <td th:text="${job.location}">Location</td>
+                <td th:text="${job.jobType}">Type</td>
+                <td>
+                    <span class="badge badge-open" th:if="${job.status == 'OPEN'}">Open</span>
+                    <span class="badge badge-closed" th:unless="${job.status == 'OPEN'}">Closed</span>
+                </td>
+                <td th:text="${#temporals.format(job.postedAt, 'yyyy-MM-dd')}">Date</td>
+                <td th:text="${applicantCounts[job.id]}">0</td>
+                <td>
+                    <div class="actions">
+                        <!-- View Applicants -->
+                        <a th:href="@{/JobPortal/recruiter/job/{id}/applicants(id=${job.id})}" class="link-btn">Applicants</a>
+                        <!-- Edit Job (always visible) -->
+                        <a th:href="@{/JobPortal/recruiter/job/{id}/edit(id=${job.id})}" class="btn-sm btn-edit">Edit</a>
+
+                        <!-- Close button (visible only when job is OPEN) -->
+                        <form th:if="${job.status == 'OPEN'}"
+                              th:action="@{/JobPortal/recruiter/job/{id}/close(id=${job.id})}"
+                              method="post" style="display:inline;">
+                            <button type="submit" class="btn-sm btn-close-job">Close</button>
+                        </form>
+
+                        <!-- Delete button (visible only when job is CLOSED) -->
+                        <form th:if="${job.status == 'CLOSED'}"
+                              th:action="@{/JobPortal/recruiter/job/{id}/delete(id=${job.id})}"
+                              method="post" style="display:inline;">
+                            <button type="submit" class="btn-sm btn-delete"
+                                    onclick="return confirm('⚠️ Are you sure you want to permanently delete this job and all its applications? This action cannot be undone.')">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>

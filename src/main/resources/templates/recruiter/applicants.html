@@ -33,14 +33,16 @@
         tr:hover td { background: #f0faf6; }
         .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
         .badge-applied { background: #e0f2fe; color: #0369a1; }
-        .badge-offered { background: #fef3c7; color: #92400e; }
         .badge-accepted { background: #d1fae5; color: #065f46; }
+        .badge-interview { background: #dbeafe; color: #1e40af; }
+        .badge-offered { background: #fef3c7; color: #92400e; }
         .badge-rejected { background: #fee2e2; color: #991b1b; }
-        .actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-start; }
-        .btn-sm { padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 500; border: none; cursor: pointer; }
-        .btn-offer { background: #fef3c7; color: #92400e; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .btn-sm { padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 500; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
         .btn-accept { background: #d1fae5; color: #065f46; }
-        .btn-reject-toggle { background: #fee2e2; color: #991b1b; cursor: pointer; font-size: 12px; font-weight: 500; border: none; padding: 5px 12px; border-radius: 5px; }
+        .btn-reject { background: #fee2e2; color: #991b1b; }
+        .btn-schedule { background: #dbeafe; color: #1e40af; }
+        .btn-offer { background: #fef3c7; color: #92400e; }
         .reject-form-inline { margin-top: 6px; display: none; }
         .reject-form-inline textarea { width: 200px; font-size: 12px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 5px; resize: vertical; min-height: 50px; }
         .reject-form-inline button { margin-top: 4px; display: block; }
@@ -48,6 +50,8 @@
         .link-resume:hover { text-decoration: underline; }
         .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
         .rejection-reason { font-size: 12px; color: #991b1b; margin-top: 4px; }
+        .congrats { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; display: inline-block; }
+        .final-status { font-size: 13px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -67,79 +71,113 @@
     <div class="table-wrap" th:if="${!applications.isEmpty()}">
         <table>
             <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Applied On</th>
-                    <th>Resume</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Applied On</th>
+                <th>Resume</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
-                <tr th:each="app : ${applications}">
-                    <td th:text="${app.seeker.user.name}">Name</td>
-                    <td th:text="${app.seeker.user.email}">Email</td>
-                    <td th:text="${#temporals.format(app.appliedAt, 'yyyy-MM-dd')}">Date</td>
-                    <td>
-                        <a th:if="${app.applicationResumePath != null and !app.applicationResumePath.isEmpty()}"
-                           th:href="@{/JobPortal/recruiter/application/{id}/resume(id=${app.id})}"
-                           class="link-resume">Download</a>
-                        <span th:unless="${app.applicationResumePath != null and !app.applicationResumePath.isEmpty()}"
-                              style="color:var(--text-muted);font-size:12px;">—</span>
-                    </td>
-                    <td>
-                        <span class="badge badge-applied" th:if="${app.status.name() == 'APPLIED'}">Applied</span>
-                        <span class="badge badge-offered" th:if="${app.status.name() == 'OFFERED'}">Offered</span>
-                        <span class="badge badge-accepted" th:if="${app.status.name() == 'ACCEPTED'}">Accepted</span>
-                        <span class="badge badge-rejected" th:if="${app.status.name() == 'REJECTED'}">Rejected</span>
-                        <div class="rejection-reason"
-                             th:if="${app.status.name() == 'REJECTED' and app.rejectionReason != null and !app.rejectionReason.isEmpty()}"
-                             th:text="${app.rejectionReason}">reason</div>
-                    </td>
-                    <td>
-                        <div class="actions" th:if="${app.status.name() == 'APPLIED'}">
-                            <form th:action="@{/JobPortal/recruiter/job/{appId}/offer(appId=${app.id})}" method="post" style="display:inline;">
-                                <input type="hidden" name="jobId" th:value="${job.id}"/>
-                                <button type="submit" class="btn-sm btn-offer">Offer</button>
-                            </form>
+            <tr th:each="app : ${applications}">
+                <td>
+                    <a th:href="@{/JobPortal/recruiter/applicant/{seekerId}/profile(seekerId=${app.seeker.js_id})}"
+                       style="color: var(--green-accent); text-decoration: none; font-weight: 500;">
+                        <span th:text="${app.seeker.user.name}"></span>
+                    </a>
+                </td>
+                <td th:text="${app.seeker.user.email}">Email</td>
+                <td th:text="${#temporals.format(app.appliedAt, 'yyyy-MM-dd')}">Date</td>
+                <!-- Resume column: only download link, no extra buttons -->
+                <td>
+                    <a th:if="${app.applicationResumePath != null and !app.applicationResumePath.isEmpty()}"
+                       th:href="@{/JobPortal/recruiter/application/{id}/resume(id=${app.id})}"
+                       class="link-resume">Download Resume</a>
+                    <span th:unless="${app.applicationResumePath != null and !app.applicationResumePath.isEmpty()}"
+                          style="color:var(--text-muted);font-size:12px;">—</span>
+                </td>
+                <!-- Status column -->
+                <td>
+                    <span class="badge badge-applied" th:if="${app.status.name() == 'APPLIED'}">Applied</span>
+                    <span class="badge badge-accepted" th:if="${app.status.name() == 'ACCEPTED'}">Accepted</span>
+                    <span class="badge badge-interview" th:if="${app.status.name() == 'INTERVIEW_SCHEDULED'}">Interview Scheduled</span>
+                    <span class="badge badge-offered" th:if="${app.status.name() == 'OFFERED'}">Offered</span>
+                    <span class="badge badge-rejected" th:if="${app.status.name() == 'REJECTED'}">Rejected</span>
+                    <!-- show interview date if scheduled -->
+                    <div th:if="${app.status.name() == 'INTERVIEW_SCHEDULED' and app.interviewDate != null}" style="font-size:12px; margin-top:4px;">
+                        📅 <span th:text="${#temporals.format(app.interviewDate, 'yyyy-MM-dd HH:mm')}"></span>
+                    </div>
+                    <!-- rejection reason -->
+                    <div class="rejection-reason" th:if="${app.status.name() == 'REJECTED' and app.rejectionReason != null}"
+                         th:text="${'Reason: ' + app.rejectionReason}"></div>
+                </td>
+                <!-- Actions column -->
+                <td>
+                    <div class="actions">
+                        <!-- 1. APPLIED -> Show Accept + Reject -->
+                        <th:block th:if="${app.status.name() == 'APPLIED'}">
                             <form th:action="@{/JobPortal/recruiter/job/{appId}/accept(appId=${app.id})}" method="post" style="display:inline;">
                                 <input type="hidden" name="jobId" th:value="${job.id}"/>
                                 <button type="submit" class="btn-sm btn-accept">Accept</button>
                             </form>
-                            <div>
-                                <button type="button" class="btn-reject-toggle"
-                                        th:onclick="|document.getElementById('rf-' + ${app.id}).style.display='block';this.style.display='none'|">Reject</button>
-                                <div th:id="'rf-' + ${app.id}" class="reject-form-inline">
-                                    <form th:action="@{/JobPortal/recruiter/job/{appId}/reject(appId=${app.id})}" method="post">
-                                        <input type="hidden" name="jobId" th:value="${job.id}"/>
-                                        <textarea name="rejectionReason" placeholder="Reason for rejection (optional)"></textarea>
-                                        <button type="submit" class="btn-sm btn-reject-toggle">Confirm Reject</button>
-                                    </form>
-                                </div>
+                            <button type="button" class="btn-sm btn-reject"
+                                    th:onclick="|document.getElementById('reject-form-${app.id}').style.display='block'; this.style.display='none'|">Reject</button>
+                            <div th:id="'reject-form-' + ${app.id}" class="reject-form-inline" style="display:none;">
+                                <form th:action="@{/JobPortal/recruiter/job/{appId}/reject(appId=${app.id})}" method="post">
+                                    <input type="hidden" name="jobId" th:value="${job.id}"/>
+                                    <textarea name="rejectionReason" placeholder="Reason for rejection (optional)"></textarea>
+                                    <button type="submit" class="btn-sm btn-reject">Confirm Reject</button>
+                                </form>
                             </div>
-                        </div>
-                        <div class="actions" th:if="${app.status.name() == 'OFFERED'}">
-                            <form th:action="@{/JobPortal/recruiter/job/{appId}/accept(appId=${app.id})}" method="post" style="display:inline;">
+                        </th:block>
+                        <!-- 2. ACCEPTED (recruiter accepted) -> Show Schedule Interview + Reject -->
+                        <th:block th:if="${app.status.name() == 'ACCEPTED'}">
+                            <a th:href="@{/JobPortal/recruiter/job/{applicationId}/schedule-interview(applicationId=${app.id})}"
+                               class="btn-sm btn-schedule">Schedule Interview</a>
+                            <button type="button" class="btn-sm btn-reject"
+                                    th:onclick="|document.getElementById('reject-form-${app.id}').style.display='block'; this.style.display='none'|">Reject</button>
+                            <div th:id="'reject-form-' + ${app.id}" class="reject-form-inline" style="display:none;">
+                                <form th:action="@{/JobPortal/recruiter/job/{applicationId}/reject(applicationId=${app.id})}" method="post">
+                                    <input type="hidden" name="jobId" th:value="${job.id}"/>
+                                    <textarea name="rejectionReason" placeholder="Reason for rejection (optional)"></textarea>
+                                    <button type="submit" class="btn-sm btn-reject">Confirm Reject</button>
+                                </form>
+                            </div>
+                        </th:block>
+
+                        <!-- 3. INTERVIEW_SCHEDULED -> Show Offer + Reject -->
+                        <th:block th:if="${app.status.name() == 'INTERVIEW_SCHEDULED'}">
+                            <form th:action="@{/JobPortal/recruiter/job/{applicationId}/offer(applicationId=${app.id})}" method="post" style="display:inline;">
                                 <input type="hidden" name="jobId" th:value="${job.id}"/>
-                                <button type="submit" class="btn-sm btn-accept">Accept</button>
+                                <button type="submit" class="btn-sm btn-offer">Offer Job</button>
                             </form>
-                            <div>
-                                <button type="button" class="btn-reject-toggle"
-                                        th:onclick="|document.getElementById('rf-' + ${app.id}).style.display='block';this.style.display='none'|">Reject</button>
-                                <div th:id="'rf-' + ${app.id}" class="reject-form-inline">
-                                    <form th:action="@{/JobPortal/recruiter/job/{appId}/reject(appId=${app.id})}" method="post">
-                                        <input type="hidden" name="jobId" th:value="${job.id}"/>
-                                        <textarea name="rejectionReason" placeholder="Reason for rejection (optional)"></textarea>
-                                        <button type="submit" class="btn-sm btn-reject-toggle">Confirm Reject</button>
-                                    </form>
-                                </div>
+                            <button type="button" class="btn-sm btn-reject"
+                                    th:onclick="|document.getElementById('reject-form-${app.id}').style.display='block'; this.style.display='none'|">Reject</button>
+                            <div th:id="'reject-form-' + ${app.id}" class="reject-form-inline" style="display:none;">
+                                <form th:action="@{/JobPortal/recruiter/job/{applicationId}/reject(applicationId=${app.id})}" method="post">
+                                    <input type="hidden" name="jobId" th:value="${job.id}"/>
+                                    <textarea name="rejectionReason" placeholder="Reason for rejection (optional)"></textarea>
+                                    <button type="submit" class="btn-sm btn-reject">Confirm Reject</button>
+                                </form>
                             </div>
-                        </div>
-                        <span th:if="${app.status.name() == 'ACCEPTED' or app.status.name() == 'REJECTED'}"
-                              style="color: var(--text-muted); font-size: 13px;">—</span>
-                    </td>
-                </tr>
+                        </th:block>
+                        <!-- 4. OFFERED -> Show congratulations message (no action buttons) -->
+                        <th:block th:if="${app.status.name() == 'OFFERED'}">
+                            <span class="congrats"> Waiting for candidate response.</span>
+                        </th:block>
+
+                        <!-- 5. REJECTED or ACCEPTED (by candidate) -> final status, no buttons -->
+                        <th:block th:if="${app.status.name() == 'REJECTED'}">
+                            <span class="final-status" style="color:#991b1b;">❌ Rejected</span>
+                        </th:block>
+                        <th:block th:if="${app.offerAccepted == true}">
+                            <span class="final-status" style="background:#d1fae5; color:#065f46; padding:4px 12px; border-radius:20px;">✅ Candidate accepted offer</span>
+                        </th:block>
+                    </div>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>

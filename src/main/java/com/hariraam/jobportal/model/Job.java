@@ -3,6 +3,7 @@ package com.hariraam.jobportal.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter @Setter @NoArgsConstructor
@@ -10,6 +11,8 @@ public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JobApplication> applications;
 
     @ManyToOne
     @JoinColumn(name = "recruiter_id")

@@ -49,8 +49,19 @@ public class SessionHelper {
             s.setLinkedinUrl("");
             s.setGithubUrl("");
             s.setPortfolioUrl("");
-            // dateOfBirth left null; user should complete their profile
             return seekerRepo.save(s);
         });
+    }
+
+
+
+    public boolean isRecruiterProfileComplete(HttpSession session) {
+        JobRecruiter recruiter = getCurrentRecruiter(session);
+        if (recruiter == null) return false;
+
+        return recruiter.getCompanyName() != null && !recruiter.getCompanyName().isEmpty() &&
+                recruiter.getCompanyWebsite() != null && !recruiter.getCompanyWebsite().isEmpty() &&
+                recruiter.getIndustry() != null && !recruiter.getIndustry().isEmpty() &&
+                recruiter.getDesignation() != null && !recruiter.getDesignation().isEmpty();
     }
 }

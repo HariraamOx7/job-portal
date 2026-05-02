@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Applicant Profile – JobPortal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --green-deep: #04342C; --green-mid: #0F6E56; --green-accent: #1D9E75;
+            --green-light: #9FE1CB; --surface: #F7F6F3; --card: #FFFFFF;
+            --text-primary: #1A1A18; --text-muted: #6B6B67; --border: rgba(0,0,0,0.10); --radius: 10px;
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text-primary); }
+        .navbar { position: sticky; top: 0; z-index: 100; background: var(--green-deep); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 58px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .brand { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #fff; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+        .nav-links a:hover { color: #fff; }
+        .nav-logout { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 6px; }
+        .nav-logout:hover { background: rgba(255,255,255,0.22) !important; }
+        .container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+        .back-link { color: var(--green-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 1.2rem; }
+        .back-link:hover { text-decoration: underline; }
+        .profile-header { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+        .profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--green-mid); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #fff; font-family: 'Playfair Display', serif; flex-shrink: 0; }
+        .profile-info { flex: 1; }
+        .profile-name { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--green-deep); }
+        .profile-headline { font-size: 14px; color: var(--text-muted); margin-top: 0.3rem; }
+        .profile-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.8rem; font-size: 13px; color: var(--text-muted); }
+        .section-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.2rem; }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--green-deep); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.6rem; }
+        .skills-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .skill-tag { background: #e0f2fe; color: #0369a1; border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 500; }
+        .exp-item { margin-bottom: 1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+        .exp-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .exp-title { font-weight: 600; font-size: 15px; color: var(--text-primary); }
+        .exp-company { font-size: 14px; color: var(--green-mid); }
+        .exp-dates { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .exp-desc { font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.6; }
+        .cert-item { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+        .cert-item:last-child { border-bottom: none; }
+        .cert-name { font-size: 14px; font-weight: 500; }
+        .cert-meta { font-size: 12px; color: var(--text-muted); }
+        .link-ext { color: var(--green-accent); text-decoration: none; font-size: 13px; }
+        .link-ext:hover { text-decoration: underline; }
+        .edu-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 1.5rem; font-size: 14px; }
+        .edu-label { color: var(--text-muted); font-size: 12px; }
+        .empty-msg { color: var(--text-muted); font-size: 14px; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="brand" th:href="@{/JobPortal/recruiter/home}">JobPortal</a>
+    <div class="nav-links">
+        <a th:href="@{/JobPortal/recruiter/home}">Dashboard</a>
+        <a th:href="@{/JobPortal/recruiter/post-job}">Post Job</a>
+        <a th:href="@{/JobPortal/recruiter/manage-jobs}">Manage Jobs</a>
+        <a th:href="@{/JobPortal/login}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+<div class="container">
+    <a href="javascript:history.back()" class="back-link">← Back to Applicants</a>
+
+    <!-- Header -->
+    <div class="profile-header">
+        <div style="display:flex;gap:1.2rem;align-items:flex-start;">
+            <div class="profile-avatar" th:text="${#strings.substring(seeker.user.name,0,1)}">A</div>
+            <div class="profile-info">
+                <div class="profile-name" th:text="${seeker.user.name}">Name</div>
+                <div class="profile-headline" th:text="${seeker.headline != null ? seeker.headline : 'No headline'}">Headline</div>
+                <div class="profile-meta">
+                    <span th:if="${seeker.city != null and !seeker.city.isEmpty()}"
+                          th:text="${seeker.city + (seeker.country != null and !seeker.country.isEmpty() ? ', ' + seeker.country : '')}">Location</span>
+                    <span th:if="${seeker.yearsOfExperience != null}" th:text="${seeker.yearsOfExperience + ' yrs exp'}">Exp</span>
+                    <a th:if="${seeker.linkedinUrl != null and !seeker.linkedinUrl.isEmpty()}"
+                       th:href="${seeker.linkedinUrl}" target="_blank" class="link-ext">LinkedIn</a>
+                    <a th:if="${seeker.githubUrl != null and !seeker.githubUrl.isEmpty()}"
+                       th:href="${seeker.githubUrl}" target="_blank" class="link-ext">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About -->
+    <div class="section-card" th:if="${seeker.about != null and !seeker.about.isEmpty()}">
+        <div class="section-title">About</div>
+        <p style="font-size:14px;line-height:1.7;" th:text="${seeker.about}"></p>
+    </div>
+
+    <!-- Skills -->
+    <div class="section-card">
+        <div class="section-title">Skills</div>
+        <div th:if="${seeker.skills != null and !seeker.skills.isEmpty()}" class="skills-list">
+            <span class="skill-tag" th:each="skill : ${#strings.arraySplit(seeker.skills, ',')}"
+                  th:text="${#strings.trim(skill)}">Skill</span>
+        </div>
+        <p th:unless="${seeker.skills != null and !seeker.skills.isEmpty()}" class="empty-msg">No skills listed.</p>
+    </div>
+
+    <!-- Experience -->
+    <div class="section-card">
+        <div class="section-title">Experience</div>
+        <div th:if="${!experiences.isEmpty()}">
+            <div class="exp-item" th:each="exp : ${experiences}">
+                <div class="exp-title" th:text="${exp.title}">Title</div>
+                <div class="exp-company" th:text="${exp.company}">Company</div>
+                <div class="exp-dates" th:text="${(exp.startYear != null ? exp.startYear : '') + ' – ' + (exp.endYear != null and !exp.endYear.isEmpty() ? exp.endYear : 'Present')}">Dates</div>
+                <div class="exp-desc" th:if="${exp.description != null and !exp.description.isEmpty()}" th:text="${exp.description}">Desc</div>
+            </div>
+        </div>
+        <p th:if="${experiences.isEmpty()}" class="empty-msg">No experience added yet.</p>
+    </div>
+
+    <!-- Education -->
+    <div class="section-card">
+        <div class="section-title">Education</div>
+        <div th:if="${seeker.collegeName != null and !seeker.collegeName.isEmpty()}">
+            <div class="edu-row">
+                <div>
+                    <div class="edu-label">Institution</div>
+                    <div th:text="${seeker.collegeName}">College</div>
+                </div>
+                <div>
+                    <div class="edu-label">Degree</div>
+                    <div th:text="${(seeker.degree != null ? seeker.degree : '') + (seeker.department != null and !seeker.department.isEmpty() ? ' – ' + seeker.department : '')}">Degree</div>
+                </div>
+                <div th:if="${seeker.graduationYear != null}">
+                    <div class="edu-label">Year</div>
+                    <div th:text="${seeker.graduationYear}">Year</div>
+                </div>
+                <div th:if="${seeker.cgpa != null}">
+                    <div class="edu-label">CGPA</div>
+                    <div th:text="${seeker.cgpa}">CGPA</div>
+                </div>
+            </div>
+        </div>
+        <p th:unless="${seeker.collegeName != null and !seeker.collegeName.isEmpty()}" class="empty-msg">No education details.</p>
+    </div>
+
+    <!-- Certifications -->
+    <div class="section-card">
+        <div class="section-title">Certifications</div>
+        <div th:if="${!certifications.isEmpty()}">
+            <div class="cert-item" th:each="cert : ${certifications}">
+                <div>
+                    <div class="cert-name" th:text="${cert.certName}">Cert Name</div>
+                    <div class="cert-meta" th:text="${(cert.issuer != null and !cert.issuer.isEmpty() ? cert.issuer : '') + (cert.year != null and !cert.year.isEmpty() ? ' · ' + cert.year : '')}">Issuer · Year</div>
+                </div>
+            </div>
+        </div>
+        <p th:if="${certifications.isEmpty()}" class="empty-msg">No certifications listed.</p>
+    </div>
+</div>
+</body>
+</html>

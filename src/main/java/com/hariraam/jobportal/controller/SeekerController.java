@@ -8,17 +8,15 @@ import com.hariraam.jobportal.service.SeekerProfileService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -94,9 +92,22 @@ public class SeekerController {
 
     @PostMapping("/job/{id}/apply")
     public String apply(@PathVariable Long id, HttpSession session,
-                        @RequestParam(required = false) MultipartFile resumeFile) {
+                        @RequestParam(required = false) MultipartFile resumeFile,
+                        RedirectAttributes redirectAttributes) {
         JobSeeker seeker = sessionHelper.getCurrentSeeker(session);
         if (seeker == null) return "redirect:/JobPortal/login";
+
+        // Debug: print file info
+        System.out.println("=== FILE UPLOAD DEBUG ===");
+        System.out.println("resumeFile is null? " + (resumeFile == null));
+        if (resumeFile != null) {
+            System.out.println("Original filename: " + resumeFile.getOriginalFilename());
+            System.out.println("Size: " + resumeFile.getSize());
+            System.out.println("Content type: " + resumeFile.getContentType());
+        } else {
+            System.out.println("resumeFile is NULL - check HTML input name and enctype");
+        }
+
         Optional<Job> jobOpt = jobService.getJobById(id);
         jobOpt.ifPresent(job -> appService.apply(job, seeker, resumeFile));
         return "redirect:/JobPortal/seeker/job/" + id;
@@ -113,7 +124,6 @@ public class SeekerController {
     }
 
     // ---- Profile ----
-
     @GetMapping("/profile")
     public String viewProfile(HttpSession session, Model model) {
         JobSeeker seeker = sessionHelper.getCurrentSeeker(session);
@@ -134,22 +144,22 @@ public class SeekerController {
 
     @PostMapping("/profile/edit")
     public String saveProfile(HttpSession session,
-                               @RequestParam(required = false) String headline,
-                               @RequestParam(required = false) String about,
-                               @RequestParam(required = false) String skills,
-                               @RequestParam(required = false) Integer yearsOfExperience,
-                               @RequestParam(required = false) String city,
-                               @RequestParam(required = false) String state,
-                               @RequestParam(required = false) String country,
-                               @RequestParam(required = false) String phoneNumber,
-                               @RequestParam(required = false) String linkedinUrl,
-                               @RequestParam(required = false) String githubUrl,
-                               @RequestParam(required = false) String portfolioUrl,
-                               @RequestParam(required = false) String degree,
-                               @RequestParam(required = false) String department,
-                               @RequestParam(required = false) String collegeName,
-                               @RequestParam(required = false) Double cgpa,
-                               @RequestParam(required = false) Integer graduationYear) {
+                              @RequestParam(required = false) String headline,
+                              @RequestParam(required = false) String about,
+                              @RequestParam(required = false) String skills,
+                              @RequestParam(required = false) Integer yearsOfExperience,
+                              @RequestParam(required = false) String city,
+                              @RequestParam(required = false) String state,
+                              @RequestParam(required = false) String country,
+                              @RequestParam(required = false) String phoneNumber,
+                              @RequestParam(required = false) String linkedinUrl,
+                              @RequestParam(required = false) String githubUrl,
+                              @RequestParam(required = false) String portfolioUrl,
+                              @RequestParam(required = false) String degree,
+                              @RequestParam(required = false) String department,
+                              @RequestParam(required = false) String collegeName,
+                              @RequestParam(required = false) Double cgpa,
+                              @RequestParam(required = false) Integer graduationYear) {
         JobSeeker seeker = sessionHelper.getCurrentSeeker(session);
         if (seeker == null) return "redirect:/JobPortal/login";
         if (headline != null) seeker.setHeadline(headline);
@@ -174,11 +184,11 @@ public class SeekerController {
 
     @PostMapping("/profile/experience/add")
     public String addExperience(HttpSession session,
-                                 @RequestParam String company,
-                                 @RequestParam String title,
-                                 @RequestParam(required = false) String startYear,
-                                 @RequestParam(required = false) String endYear,
-                                 @RequestParam(required = false) String description) {
+                                @RequestParam String company,
+                                @RequestParam String title,
+                                @RequestParam(required = false) String startYear,
+                                @RequestParam(required = false) String endYear,
+                                @RequestParam(required = false) String description) {
         JobSeeker seeker = sessionHelper.getCurrentSeeker(session);
         if (seeker == null) return "redirect:/JobPortal/login";
         profileService.addExperience(seeker, company, title, startYear, endYear, description);
@@ -195,9 +205,9 @@ public class SeekerController {
 
     @PostMapping("/profile/certification/add")
     public String addCertification(HttpSession session,
-                                    @RequestParam String certName,
-                                    @RequestParam(required = false) String issuer,
-                                    @RequestParam(required = false) String year) {
+                                   @RequestParam String certName,
+                                   @RequestParam(required = false) String issuer,
+                                   @RequestParam(required = false) String year) {
         JobSeeker seeker = sessionHelper.getCurrentSeeker(session);
         if (seeker == null) return "redirect:/JobPortal/login";
         profileService.addCertification(seeker, certName, issuer, year);
@@ -210,5 +220,33 @@ public class SeekerController {
         if (seeker == null) return "redirect:/JobPortal/login";
         profileService.deleteCertification(id, seeker);
         return "redirect:/JobPortal/seeker/profile";
+    }
+
+    // ========== NEW: Accept / Reject Offer ==========
+    @PostMapping("/application/{applicationId}/accept-offer")
+    public String acceptOffer(@PathVariable Long applicationId, HttpSession session) {
+        JobSeeker seeker = sessionHelper.getCurrentSeeker(session);
+        if (seeker == null) return "redirect:/JobPortal/login";
+        appService.acceptOffer(applicationId);
+        return "redirect:/JobPortal/seeker/job-history";
+    }
+
+    @PostMapping("/application/{applicationId}/reject-offer")
+    public String rejectOffer(@PathVariable Long applicationId,
+                              @RequestParam String rejectionReason,
+                              HttpSession session) {
+        JobSeeker seeker = sessionHelper.getCurrentSeeker(session);
+        if (seeker == null) return "redirect:/JobPortal/login";
+        appService.rejectOffer(applicationId, rejectionReason);
+        return "redirect:/JobPortal/seeker/job-history";
+    }
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String handleMaxSizeException(MaxUploadSizeExceededException ex,
+                                         HttpSession session,
+                                         Model model,
+                                         @PathVariable(required = false) Long id) {
+        String referer = session.getAttribute("lastJobId") != null ? "/JobPortal/seeker/job/" + session.getAttribute("lastJobId") : "/JobPortal/seeker/home";
+        model.addAttribute("error", "File too large! Maximum upload size is 10MB.");
+        return "redirect:" + referer;
     }
 }
